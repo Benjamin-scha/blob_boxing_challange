@@ -18,20 +18,24 @@
         app:layout_constraintStart_toEndOf="@+id/left_button" />
 
     <ImageView
+        android:id="@+id/box_"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.406"
+        app:srcCompat="@drawable/wood_box" />
+
+    <ImageView
         android:id="@+id/main_character"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="is a blob"
         app:srcCompat="@drawable/little_blobby"
         tools:layout_editor_absoluteX="141dp"
-        tools:srcCompat="@drawable/little_blobby" />
-
-    <ImageView
-        android:id="@+id/second_character"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="is a blob"
-        app:srcCompat="@drawable/little_blobby"
         tools:srcCompat="@drawable/little_blobby" />
 
     <Button
@@ -57,22 +61,15 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/box_"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/trap_dot"
+        android:layout_width="65dp"
+        android:layout_height="57dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/wood_box" />
-
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="65dp"
-        android:layout_height="57dp"
-        app:srcCompat="@drawable/location_dot_black"
-        tools:layout_editor_absoluteX="2dp"
-        tools:layout_editor_absoluteY="3dp" />
+        app:layout_constraintVertical_bias="0.415"
+        app:srcCompat="@drawable/location_dot_black" />
 
     <Button
         android:id="@+id/up_button"
@@ -98,10 +95,19 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
-        android:layout_marginEnd="84dp"
-        android:layout_marginRight="84dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginRight="28dp"
         android:text="TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/which_player"
+        android:layout_width="141dp"
+        android:layout_height="55dp"
+        android:text="TextView"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="51dp"
+        tools:layout_editor_absoluteY="11dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
