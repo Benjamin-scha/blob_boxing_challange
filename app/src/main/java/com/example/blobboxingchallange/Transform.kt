@@ -42,9 +42,10 @@ class Transform(var view: ImageView, var pos: vector2 = vector2(0f,0f), var scal
 
     fun Translate(x:Float,y:Float, _duration: Long = 2000,func: ()-> Unit ={emptyfun()}){
 
-        GoTOAnimation(this.view,"translationX", this.pos.x,this.pos.x+x,_duration) { func }
+        GoTOAnimation(this.view,"translationX", this.pos.x,this.pos.x+x,_duration, func= { func() })
         GoTOAnimation(this.view,"translationY", this.pos.y,this.pos.y-y,_duration)
         this.pos = vector2(this.pos.x+x,this.pos.y-y)
+
     }
 
     private fun emptyfun(){}
@@ -58,6 +59,7 @@ class Transform(var view: ImageView, var pos: vector2 = vector2(0f,0f), var scal
 
 
                 func()
+
             }
 
             start()

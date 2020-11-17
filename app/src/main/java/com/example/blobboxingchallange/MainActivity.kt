@@ -17,17 +17,17 @@ import androidx.core.animation.doOnEnd
 class MainActivity : AppCompatActivity() {
 
 
-    lateinit var  pos:TextView
+    lateinit var  posText:TextView
 
 
-    lateinit var layoutThing:View
+
 
    lateinit var blobImage:ImageView
 
    lateinit var blob : Transform
     lateinit var blob2:Transform
 
-    lateinit var Box:Transform
+   //
 
 
     lateinit var button1 :Button
@@ -38,8 +38,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var downButton:Button
 
     var blobSpeed:Float = 250f
-
-lateinit var box:ImageView
+    lateinit var Box:Transform
+    lateinit var box:ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,46 +47,53 @@ lateinit var box:ImageView
 
 
 
-        pos = findViewById(R.id.textView)
-
-
-        layoutThing = findViewById(R.id.layout_thing)
-
+        posText = findViewById(R.id.textView)
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
 
         blobSpeed = displayMetrics.widthPixels.toFloat()/5
 
+
+
+
         blobImage = findViewById(R.id.main_character)
+
+
         blob = Transform(blobImage, vector2(0f, 0f), vector2(1f, 1f))
         blob2 = Transform(findViewById(R.id.second_character), vector2(0f, 0f), vector2(1f, 1f))
-        button1 = findViewById(R.id.button)
 
 
 
+
+        ///// setup buttons
         rightButton = findViewById(R.id.right_button)
         leftButton = findViewById(R.id.left_button)
         upButton = findViewById(R.id.up_button)
         downButton = findViewById(R.id.down_button)
 
         rightButton.setOnClickListener {
-            blob.Translate(blobSpeed, 0f)
-            pos.text = "${blob.pos.x}, ${blob.pos.y}"
+            blob.Translate(blobSpeed, 0f,func ={arePosEqual()})
+            posText.text = "${blob.pos.x}, ${blob.pos.y}"
         }
 
         leftButton.setOnClickListener {
-            blob.Translate(-blobSpeed, 0f)
-            pos.text = "${blob.pos.x}, ${blob.pos.y}"
+            blob.Translate(-blobSpeed, 0f,func ={arePosEqual()})
+            posText.text = "${blob.pos.x}, ${blob.pos.y}"
         }
 
         upButton.setOnClickListener {
-            blob.Translate(0f,blobSpeed)
-            pos.text = "${blob.pos.x}, ${blob.pos.y}"
+            blob.Translate(0f,blobSpeed,func ={arePosEqual()})
+            posText.text = "${blob.pos.x}, ${blob.pos.y}"
         }
 
         downButton.setOnClickListener {
-            blob.Translate(0f,-blobSpeed)
-            pos.text = "${blob.pos.x}, ${blob.pos.y}"
+            blob.Translate(0f,-blobSpeed, func ={arePosEqual()})
+            posText.text = "${blob.pos.x}, ${blob.pos.y}"
+        }
+
+        button1 = findViewById(R.id.button)
+        button1.setOnClickListener {
+
 
         }
 
@@ -95,15 +102,11 @@ lateinit var box:ImageView
 
         box = findViewById(R.id.box_)
 
-        Box = Transform(box, scale = vector2(1f, 1f))
+        Box = Transform(box, scale = vector2(1f, 1f), pos = vector2(0f,100f))
 
 
         Box.setTransformAttributes()
 
-        button1.setOnClickListener {
-
-
-        }
 
 
         blob.scale = vector2(.25f, .25f)
@@ -126,6 +129,13 @@ lateinit var box:ImageView
         }
     }
 
+
+    private fun arePosEqual(){
+        toost("things happen")
+        if(blob.pos.isthisEqualToThis(blob2.pos)){
+            toost("SAME PLACE")
+        }
+    }
 
     private fun isViewOverlapping(v1: View, v2:View):Boolean{
 
