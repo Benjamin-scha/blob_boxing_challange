@@ -15,6 +15,9 @@ import android.widget.Toast
 class MainActivity : AppCompatActivity() {
 
 
+
+    var Attempts:Int = 0
+
     lateinit var viewPosition: TextView
 
     lateinit var playersTurn:TextView
@@ -53,10 +56,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+        Attempts = 3
+
         playersTurn = findViewById(R.id.which_player)
+        playersTurn.text = "PLAYER 1"
+
 
         turn = whoseTurn.PLAYER1
         stage = TurnStage.PLACING_BOX
+
 
 
         //setText
@@ -128,15 +137,35 @@ class MainActivity : AppCompatActivity() {
                 TurnStage.PLACING_TRAP -> {
                     setTrapToMe(blob)
                     toost("TRAP IS SET")
-                    stage = TurnStage.SEARCHING
+
 
                     button1.text = "check if box is here"
 
 
                     setBlobToCenter()
 
-                    makeViewInvisible(box)
-                    makeViewInvisible(findViewById(R.id.trap_dot))
+                    when(turn){
+                        whoseTurn.PLAYER1->{
+                            turn = whoseTurn.PLAYER2
+                            stage = TurnStage.PLACING_BOX
+                            Box2.pos = vector2(0f,0f,)
+                            trap2.pos = vector2(0f,0f)
+                            Box2.setTransformAttributes()
+                            trap2.setTransformAttributes()
+                            MakeViewVisible(box)
+                            MakeViewVisible(findViewById(R.id.trap_dot))
+                        }
+                        whoseTurn.PLAYER2->{
+                            turn = whoseTurn.PLAYER1
+                            makeViewInvisible(box)
+                            makeViewInvisible(findViewById(R.id.trap_dot))
+                            stage = TurnStage.SEARCHING
+                        }
+                    }
+
+
+
+
 
 
                 }
@@ -144,7 +173,32 @@ class MainActivity : AppCompatActivity() {
 
                 TurnStage.SEARCHING -> {
 
-                    if (areYouWhereBoxIs()) {
+                    when(turn){
+                        whoseTurn.PLAYER1->{
+                            Attempts--
+                            if (areYouWhereBoxIs()&&Attempts>0) {
+                                MakeViewVisible(box)
+                                button1.text = "Place Box"
+                                MakeViewVisible(findViewById(R.id.trap_dot))
+                                togglePlayer()
+                                stage = TurnStage.PLACING_BOX
+                            }
+
+
+
+                            if(Attempts<1){
+                                togglePlayer()
+                                stage = TurnStage.PLACING_BOX
+                            }
+                        }
+                        whoseTurn.PLAYER2->{
+
+                        }
+                    }
+
+
+                    Attempts--
+                    if (areYouWhereBoxIs()&&Attempts>0) {
                         MakeViewVisible(box)
                         button1.text = "Place Box"
                         MakeViewVisible(findViewById(R.id.trap_dot))
@@ -154,6 +208,10 @@ class MainActivity : AppCompatActivity() {
 
 
 
+                    if(Attempts<1){
+                        togglePlayer()
+                        stage = TurnStage.PLACING_BOX
+                    }
 
 
 
@@ -339,6 +397,7 @@ class MainActivity : AppCompatActivity() {
             turn = whoseTurn.PLAYER1
             playersTurn.text = "PLAYER 1"
         }
+        Attempts = 3
 
     }
 
