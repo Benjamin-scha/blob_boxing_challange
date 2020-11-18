@@ -7,51 +7,70 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AnticipateInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.animation.doOnEnd
 
 class MainActivity : AppCompatActivity() {
 
 
-    lateinit var  posText:TextView
+    lateinit var viewPosition: TextView
+
+    lateinit var playersTurn:TextView
+
+    lateinit var blobImage: ImageView
+
+    lateinit var blob: Transform
+    lateinit var trap1: Transform
+    lateinit var trap2: Transform
+
+    enum class whoseTurn {
+        PLAYER1, PLAYER2
+    }
+
+    enum class TurnStage {
+        PLACING_BOX, PLACING_TRAP, SEARCHING
+    }
+
+    lateinit var turn: whoseTurn
+    lateinit var stage: TurnStage
 
 
-
-
-   lateinit var blobImage:ImageView
-
-   lateinit var blob : Transform
-    lateinit var blob2:Transform
-
-   //
-
-
-    lateinit var button1 :Button
+    lateinit var button1: Button
 
     lateinit var rightButton: Button
     lateinit var leftButton: Button
-    lateinit var upButton:Button
-    lateinit var downButton:Button
+    lateinit var upButton: Button
+    lateinit var downButton: Button
 
-    var blobSpeed:Float = 250f
-    lateinit var Box:Transform
-    lateinit var box:ImageView
+    var blobSpeed: Float = 250f
+    lateinit var Box1: Transform
+    lateinit var Box2: Transform
+    lateinit var box: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        playersTurn = findViewById(R.id.which_player)
+
+        turn = whoseTurn.PLAYER1
+        stage = TurnStage.PLACING_BOX
 
 
-        posText = findViewById(R.id.textView)
+        //setText
+        viewPosition = findViewById(R.id.textView)
+
+
+        //set speed
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
 
-        blobSpeed = displayMetrics.widthPixels.toFloat()/5
+        blobSpeed = displayMetrics.widthPixels.toFloat() / 5
+
+
+
 
 
 
@@ -59,10 +78,9 @@ class MainActivity : AppCompatActivity() {
         blobImage = findViewById(R.id.main_character)
 
 
-        blob = Transform(blobImage, vector2(0f, 0f), vector2(1f, 1f))
-        blob2 = Transform(findViewById(R.id.second_character), vector2(0f, 0f), vector2(1f, 1f))
-
-
+        blob = Transform(blobImage, vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
+        trap1 = Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
+        trap2 = Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
 
 
         ///// setup buttons
@@ -72,28 +90,86 @@ class MainActivity : AppCompatActivity() {
         downButton = findViewById(R.id.down_button)
 
         rightButton.setOnClickListener {
-            blob.Translate(blobSpeed, 0f,func ={arePosEqual()})
-            posText.text = "${blob.pos.x}, ${blob.pos.y}"
+            if (blob.spaceNums.x < 2) blob.Translate(blobSpeed, 0f, func = { this.checkForTraps() })
+            viewPosition.text = "${blob.spaceNums.x}, ${blob.spaceNums.y}"
         }
 
         leftButton.setOnClickListener {
-            blob.Translate(-blobSpeed, 0f,func ={arePosEqual()})
-            posText.text = "${blob.pos.x}, ${blob.pos.y}"
+            if (blob.spaceNums.x > -2) blob.Translate(-blobSpeed, 0f, func = { this.checkForTraps() })
+            viewPosition.text = "${blob.spaceNums.x}, ${blob.spaceNums.y}"
         }
 
         upButton.setOnClickListener {
-            blob.Translate(0f,blobSpeed,func ={arePosEqual()})
-            posText.text = "${blob.pos.x}, ${blob.pos.y}"
+            if (blob.spaceNums.y < 3) blob.Translate(0f, blobSpeed, func = { this.checkForTraps() })
+            viewPosition.text = "${blob.spaceNums.x}, ${blob.spaceNums.y}"
         }
 
         downButton.setOnClickListener {
-            blob.Translate(0f,-blobSpeed, func ={arePosEqual()})
-            posText.text = "${blob.pos.x}, ${blob.pos.y}"
+            if (blob.spaceNums.y > -2) blob.Translate(0f, -blobSpeed, func = { this.checkForTraps() })
+            viewPosition.text = "${blob.spaceNums.x}, ${blob.spaceNums.y}"
         }
 
         button1 = findViewById(R.id.button)
         button1.setOnClickListener {
 
+
+
+            when (stage) {
+
+
+                TurnStage.PLACING_BOX -> {
+                    setBoxToMe(blob)
+                    toost("BOX SET TO ME")
+                    stage = TurnStage.PLACING_TRAP
+
+                    button1.text = "Place Trap"
+                }
+
+                TurnStage.PLACING_TRAP -> {
+                    setTrapToMe(blob)
+                    toost("TRAP IS SET")
+                    stage = TurnStage.SEARCHING
+
+                    button1.text = "check if box is here"
+
+
+                    setBlobToCenter()
+
+                    makeViewInvisible(box)
+                    makeViewInvisible(findViewById(R.id.trap_dot))
+
+
+                }
+
+
+                TurnStage.SEARCHING -> {
+
+                    if (areYouWhereBoxIs()) {
+                        MakeViewVisible(box)
+                        button1.text = "Place Box"
+                        MakeViewVisible(findViewById(R.id.trap_dot))
+                        togglePlayer()
+                        stage = TurnStage.PLACING_BOX
+                    }
+
+
+
+
+
+
+
+
+                }
+
+            }
+            when(turn){
+                whoseTurn.PLAYER1->{
+                    playersTurn.text = "PLAYER 1"
+                }
+                whoseTurn.PLAYER2->{
+                    playersTurn.text = "PLAYER 2"
+                }
+            }
 
         }
 
@@ -102,24 +178,65 @@ class MainActivity : AppCompatActivity() {
 
         box = findViewById(R.id.box_)
 
-        Box = Transform(box, scale = vector2(1f, 1f), pos = vector2(0f,100f))
+        Box1 = Transform(box, scale = vector2(1f, 1f), pos = vector2(0f, 100f), spaceNums = vector2(0f, 0f))
+        Box1.setTransformAttributes()
 
-
-        Box.setTransformAttributes()
+        Box2 = Transform(box, scale = vector2(1f, 1f), pos = vector2(0f, 100f), spaceNums = vector2(0f, 0f))
+        Box2.setTransformAttributes()
 
 
 
         blob.scale = vector2(.25f, .25f)
         setupBackAndForthAnimaion(blob.view, "ScaleY", blob.scale.y * 1f, blob.scale.y * 1.1f, 1000)
         setupBackAndForthAnimaion(blob.view, "ScaleX", blob.scale.x * 1.01f, blob.scale.x * .98f, 1000)
-        blob2.scale = vector2(.25f, .25f)
-        setupBackAndForthAnimaion(blob2.view, "ScaleY", blob2.scale.y * 1f, blob2.scale.y * 1.1f, 1000)
-        setupBackAndForthAnimaion(blob2.view, "ScaleX", blob2.scale.x * 1.01f, blob2.scale.x * .98f, 1000)
+        trap1.scale = vector2(1f, 1f)
+
     }
 
 
+    private fun setBoxToMe(me: Transform) {
+        when (turn) {
+            whoseTurn.PLAYER1 -> {
+                Box1.pos = me.pos
+                Box1.spaceNums = me.spaceNums
+                Box1.setTransformAttributes()
+            }
+            whoseTurn.PLAYER2 -> {
+                Box2.pos = me.pos
+                Box2.spaceNums = me.spaceNums
+                Box2.setTransformAttributes()
+            }
+        }
 
-    private fun setupBackAndForthAnimaion(view: ImageView, translation:String, From:Float, To:Float, _duration: Long){
+
+    }
+
+    private fun setTrapToMe(me: Transform) {
+        when (turn) {
+            whoseTurn.PLAYER1 -> {
+                trap1.pos = me.pos
+                trap1.spaceNums = me.spaceNums
+                trap1.setTransformAttributes()
+            }
+            whoseTurn.PLAYER2 -> {
+                trap2.pos = me.pos
+                trap2.spaceNums = me.spaceNums
+                trap2.setTransformAttributes()
+            }
+        }
+
+    }
+
+
+    private fun makeViewInvisible(view: ImageView) {
+        view.visibility = ImageView.INVISIBLE
+    }
+
+    private fun MakeViewVisible(view: ImageView) {
+        view.visibility = ImageView.VISIBLE
+    }
+
+    private fun setupBackAndForthAnimaion(view: ImageView, translation: String, From: Float, To: Float, _duration: Long) {
         ObjectAnimator.ofFloat(view, translation, From, To).apply {
             interpolator = AccelerateDecelerateInterpolator()
             duration = _duration
@@ -130,14 +247,54 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun arePosEqual(){
-        toost("things happen")
-        if(blob.pos.isthisEqualToThis(blob2.pos)){
-            toost("SAME PLACE")
+    private fun areYouWhereBoxIs(): Boolean {
+        when (turn) {
+            whoseTurn.PLAYER1 -> {
+                if (blob.pos.isthisEqualToThis(Box1.pos)) {
+                    toost("YES PLAYER ONE IS WHERE BOX IS")
+                    return true
+                }
+            }
+
+            whoseTurn.PLAYER2 -> {
+                if (blob.pos.isthisEqualToThis(Box2.pos)) {
+                    toost("YES PLAYER TWO IS WHERE BOX IS")
+                    return true
+                }
+            }
+
+        }
+        toost("NOPE!")
+        return false
+
+    }
+
+
+    private fun checkForTraps() {
+        if (stage == TurnStage.SEARCHING) {
+            areYouWhereTrapIs()
         }
     }
 
-    private fun isViewOverlapping(v1: View, v2:View):Boolean{
+    private fun areYouWhereTrapIs() {
+
+        when (turn){
+            whoseTurn.PLAYER1->{
+                if (blob.pos.isthisEqualToThis(trap1.pos)) {
+                    toost("YES I AM WHERE TRAP IS")
+                }
+            }
+            whoseTurn.PLAYER2->{
+                if (blob.pos.isthisEqualToThis(trap2.pos)) {
+                    toost("YES I AM WHERE TRAP IS")
+                }
+            }
+        }
+
+    }
+
+
+    private fun isViewOverlapping(v1: View, v2: View): Boolean {
 
         val rect1 = Rect()
         v1.getHitRect(rect1)
@@ -145,46 +302,44 @@ class MainActivity : AppCompatActivity() {
 
         val rect2 = Rect()
         v2.getHitRect(rect2)
-        return Rect.intersects(rect1,rect2)
+        return Rect.intersects(rect1, rect2)
     }
 
 
+    private fun setBlobToCenter() {
+        blob.pos = vector2(0f, 0f)
+        blob.spaceNums = vector2(0f, 0f)
+        blob.setTransformAttributes()
+    }
 
 
-//    private fun Translateblob(blob: BlobClass, x:Float, y:Float, _duration: Long,func: ()-> Unit ={emptyfun()}){
-//        GoTOAnimation(blob.view,"translationX", blob.pos.x,blob.pos.x+x,_duration) { func }
-//        GoTOAnimation(blob.view,"translationY", blob.pos.y,blob.pos.y-y,_duration)
-//        blob.pos = vector2(blob.pos.x+x,blob.pos.y-y)
-//    }
+    private fun emptyfun() {}
 
 
-
-//    private fun Translateblob(blob: BlobClass, x:Float, y:Float, _duration: Long){
-//        GoTOAnimation(blob.view,"translationX", blob.pos.x,blob.pos.x+x,_duration)
-//        GoTOAnimation(blob.view,"translationY", blob.pos.y,blob.pos.y-y,_duration)
-//        blob.pos = vector2(blob.pos.x+x,blob.pos.y-y)
-//    }
-
-    private fun emptyfun(){}
-
-
-    private fun ifOnOtherSlimeGoBack(view: BlobClass, x:Float, y: Float, _duration: Long){
+    private fun ifOnOtherSlimeGoBack(view: BlobClass, x: Float, y: Float, _duration: Long) {
 
         toost("hiiiii")
-        if(isViewOverlapping(view.view,blob2.view)){
+        // if (isViewOverlapping(view.view, blob2.view)) {
 
-        }
+        // }
 
     }
 
 
+    private fun toost(string: String) {
+        Toast.makeText(this@MainActivity, string, Toast.LENGTH_SHORT).show()
+    }
 
 
+    private fun togglePlayer(){
+        if (turn == whoseTurn.PLAYER1) {
+            playersTurn.text = "PLAYER 2"
+            turn = whoseTurn.PLAYER2
+        }else if (turn == whoseTurn.PLAYER2) {
+            turn = whoseTurn.PLAYER1
+            playersTurn.text = "PLAYER 1"
+        }
 
-
-
-    private fun toost(string: String){
-        Toast.makeText(this@MainActivity,string,Toast.LENGTH_SHORT).show()
     }
 
 }
