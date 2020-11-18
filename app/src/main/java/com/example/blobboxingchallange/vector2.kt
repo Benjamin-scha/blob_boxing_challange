@@ -8,7 +8,4 @@ class vector2(var x:Float,var y:Float) {
 
 
     }
-
-
-
 }
