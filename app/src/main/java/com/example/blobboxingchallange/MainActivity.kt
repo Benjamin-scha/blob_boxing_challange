@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity() {
 
         blob = Transform(blobImage, vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
         trap1 = Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
-        trap2 = Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
 
 
         ///// setup buttons

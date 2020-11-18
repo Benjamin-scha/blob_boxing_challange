@@ -6,7 +6,7 @@ import android.view.animation.AnticipateInterpolator
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 
-class Transform(var view: ImageView, var pos: vector2 = vector2(0f,0f), var scale:vector2= vector2(0f,0f), var rot: Float = 0f) {
+class Transform(var view: ImageView, var pos: vector2 = vector2(0f,0f), var scale:vector2= vector2(0f,0f), var rot: Float = 0f, var spaceNums:vector2 =  vector2(0f,0f)) {
 
     fun setTransformAttributes(){
 
