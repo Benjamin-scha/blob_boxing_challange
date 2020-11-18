@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var blobImage: ImageView
 
     lateinit var blob: Transform
-    lateinit var trap1: Transform
-    lateinit var trap2: Transform
+    lateinit var trap1: GameItem
+   // lateinit var trap2: GameItem
 
     enum class whoseTurn {
         PLAYER1, PLAYER2
@@ -48,8 +48,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var downButton: Button
 
     var blobSpeed: Float = 250f
-    lateinit var Box1: Transform
-    lateinit var Box2: Transform
+    lateinit var Box1: GameItem
+    lateinit var Box2: GameItem
     lateinit var box: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,9 +88,8 @@ class MainActivity : AppCompatActivity() {
 
 
         blob = Transform(blobImage, vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
-        trap1 = Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
-        trap2 = Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f))
-
+        trap1 = GameItem( Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f)),true,true)
+       // trap2 = GameItem( Transform(findViewById(R.id.trap_dot), vector2(0f, 0f), vector2(1f, 1f), spaceNums = vector2(0f, 0f)),true,true)
 
         ///// setup buttons
         rightButton = findViewById(R.id.right_button)
@@ -119,115 +118,52 @@ class MainActivity : AppCompatActivity() {
         }
 
         button1 = findViewById(R.id.button)
+
+
+
         button1.setOnClickListener {
 
 
 
-            when (stage) {
+                    when (stage) {
 
 
-                TurnStage.PLACING_BOX -> {
-                    setBoxToMe(blob)
-                    toost("BOX SET TO ME")
-                    stage = TurnStage.PLACING_TRAP
+                        TurnStage.PLACING_BOX -> {
 
-                    button1.text = "Place Trap"
-                }
+                            setBoxToMe(Box1.transform)
+                            Box1.declareHiden()
+                            stage = TurnStage.PLACING_TRAP
 
-                TurnStage.PLACING_TRAP -> {
-                    setTrapToMe(blob)
-                    toost("TRAP IS SET")
-
-
-                    button1.text = "check if box is here"
-
-
-                    setBlobToCenter()
-
-                    when(turn){
-                        whoseTurn.PLAYER1->{
-                            turn = whoseTurn.PLAYER2
-                            stage = TurnStage.PLACING_BOX
-                            Box2.pos = vector2(0f,0f,)
-                            trap2.pos = vector2(0f,0f)
-                            Box2.setTransformAttributes()
-                            trap2.setTransformAttributes()
-                            MakeViewVisible(box)
-                            MakeViewVisible(findViewById(R.id.trap_dot))
                         }
-                        whoseTurn.PLAYER2->{
-                            turn = whoseTurn.PLAYER1
-                            makeViewInvisible(box)
-                            makeViewInvisible(findViewById(R.id.trap_dot))
+                        TurnStage.PLACING_TRAP -> {
+                            setTrapToMe(trap1.transform)
+                            trap1.declareHiden()
+
+                            when (turn){
+                                whoseTurn.PLAYER1->{playersTurn.text = "PLAYER1"}
+                                whoseTurn.PLAYER2->{playersTurn.text = "PLAYER2"}
+                            }
                             stage = TurnStage.SEARCHING
+                            setBlobToCenter()
                         }
-                    }
+                        TurnStage.SEARCHING -> {
 
+                            if(Attempts>0){
+                                if(areYouWhereBoxIs()){
+                                    incrementScore()
+                                    Box1.declareFound()
+                                    trap1.declareFound()
 
-
-
-
-
-                }
-
-
-                TurnStage.SEARCHING -> {
-
-                    when(turn){
-                        whoseTurn.PLAYER1->{
-                            Attempts--
-                            if (areYouWhereBoxIs()&&Attempts>0) {
-                                MakeViewVisible(box)
-                                button1.text = "Place Box"
-                                MakeViewVisible(findViewById(R.id.trap_dot))
-                                togglePlayer()
-                                stage = TurnStage.PLACING_BOX
-                            }
-
-
-
-                            if(Attempts<1){
-                                togglePlayer()
-                                stage = TurnStage.PLACING_BOX
+                                }
                             }
                         }
-                        whoseTurn.PLAYER2->{
-
-                        }
-                    }
 
 
-                    Attempts--
-                    if (areYouWhereBoxIs()&&Attempts>0) {
-                        MakeViewVisible(box)
-                        button1.text = "Place Box"
-                        MakeViewVisible(findViewById(R.id.trap_dot))
-                        togglePlayer()
-                        stage = TurnStage.PLACING_BOX
-                    }
-
-
-
-                    if(Attempts<1){
-                        togglePlayer()
-                        stage = TurnStage.PLACING_BOX
                     }
 
 
 
 
-
-                }
-
-            }
-            when(turn){
-                whoseTurn.PLAYER1->{
-                    playersTurn.text = "PLAYER 1"
-                }
-                whoseTurn.PLAYER2->{
-                    playersTurn.text = "PLAYER 2"
-                }
-            }
 
         }
 
@@ -236,52 +172,41 @@ class MainActivity : AppCompatActivity() {
 
         box = findViewById(R.id.box_)
 
-        Box1 = Transform(box, scale = vector2(1f, 1f), pos = vector2(0f, 100f), spaceNums = vector2(0f, 0f))
-        Box1.setTransformAttributes()
+        Box1 = GameItem(Transform(box, scale = vector2(1f, 1f), pos = vector2(0f, 100f), spaceNums = vector2(0f, 0f)),true,true)
+        Box1.setObject()
 
-        Box2 = Transform(box, scale = vector2(1f, 1f), pos = vector2(0f, 100f), spaceNums = vector2(0f, 0f))
-        Box2.setTransformAttributes()
+        Box2 = GameItem(Transform(box, scale = vector2(1f, 1f), pos = vector2(0f, 100f), spaceNums = vector2(0f, 0f)),true,true)
+        Box2.setObject()
 
 
 
         blob.scale = vector2(.25f, .25f)
         setupBackAndForthAnimaion(blob.view, "ScaleY", blob.scale.y * 1f, blob.scale.y * 1.1f, 1000)
         setupBackAndForthAnimaion(blob.view, "ScaleX", blob.scale.x * 1.01f, blob.scale.x * .98f, 1000)
-        trap1.scale = vector2(1f, 1f)
+        trap1.transform.scale = vector2(1f, 1f)
 
     }
 
 
     private fun setBoxToMe(me: Transform) {
-        when (turn) {
-            whoseTurn.PLAYER1 -> {
-                Box1.pos = me.pos
-                Box1.spaceNums = me.spaceNums
-                Box1.setTransformAttributes()
-            }
-            whoseTurn.PLAYER2 -> {
-                Box2.pos = me.pos
-                Box2.spaceNums = me.spaceNums
-                Box2.setTransformAttributes()
-            }
-        }
+
+        Box1.transform.pos = me.pos
+        Box1.transform.spaceNums = me.spaceNums
+        Box1.setObject()
+
 
 
     }
 
     private fun setTrapToMe(me: Transform) {
-        when (turn) {
-            whoseTurn.PLAYER1 -> {
-                trap1.pos = me.pos
-                trap1.spaceNums = me.spaceNums
-                trap1.setTransformAttributes()
-            }
-            whoseTurn.PLAYER2 -> {
-                trap2.pos = me.pos
-                trap2.spaceNums = me.spaceNums
-                trap2.setTransformAttributes()
-            }
-        }
+
+
+        trap1.transform.pos = me.pos
+        trap1.transform.spaceNums = me.spaceNums
+        trap1.setObject()
+
+
+
 
     }
 
@@ -306,22 +231,13 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun areYouWhereBoxIs(): Boolean {
-        when (turn) {
-            whoseTurn.PLAYER1 -> {
-                if (blob.pos.isthisEqualToThis(Box1.pos)) {
-                    toost("YES PLAYER ONE IS WHERE BOX IS")
-                    return true
-                }
-            }
 
-            whoseTurn.PLAYER2 -> {
-                if (blob.pos.isthisEqualToThis(Box2.pos)) {
-                    toost("YES PLAYER TWO IS WHERE BOX IS")
-                    return true
-                }
-            }
+        if (blob.pos.isthisEqualToThis(Box1.transform.pos)) {
 
+            toost("YES PLAYER ONE IS WHERE BOX IS")
+            return true
         }
+
         toost("NOPE!")
         return false
 
@@ -336,21 +252,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun areYouWhereTrapIs() {
 
-        when (turn){
-            whoseTurn.PLAYER1->{
-                if (blob.pos.isthisEqualToThis(trap1.pos)) {
-                    toost("YES I AM WHERE TRAP IS")
-                }
-            }
-            whoseTurn.PLAYER2->{
-                if (blob.pos.isthisEqualToThis(trap2.pos)) {
-                    toost("YES I AM WHERE TRAP IS")
-                }
-            }
-        }
-
+      if (blob.pos.isthisEqualToThis(trap1.transform.pos)) {
+          trap1.declareFound()
+          toost("YES I AM WHERE TRAP IS")
+      }
     }
 
+    private  fun incrementScore(){
+        if(turn == whoseTurn.PLAYER1){
+            score1++
+        }else{
+            score2++
+        }
+    }
 
     private fun isViewOverlapping(v1: View, v2: View): Boolean {
 
@@ -374,13 +288,11 @@ class MainActivity : AppCompatActivity() {
     private fun emptyfun() {}
 
 
-    private fun ifOnOtherSlimeGoBack(view: BlobClass, x: Float, y: Float, _duration: Long) {
-
-        toost("hiiiii")
-        // if (isViewOverlapping(view.view, blob2.view)) {
-
-        // }
-
+    private fun setItemsTodefault(){
+        Box1.transform.pos = vector2(0f,-2f)
+        trap1.transform.pos = vector2(0f,-2f)
+        Box1.isVisible = true
+        trap1.isVisible = true
     }
 
 
@@ -398,6 +310,17 @@ class MainActivity : AppCompatActivity() {
             playersTurn.text = "PLAYER 1"
         }
         Attempts = 3
+
+    }
+
+     var score1:Int = 0
+     var score2:Int = 0
+
+
+    private fun StartGameSequence(){
+        turn = whoseTurn.PLAYER1
+        score1 = 0
+        score2 = 0
 
     }
 

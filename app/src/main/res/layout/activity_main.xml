@@ -104,10 +104,10 @@
 
     <TextView
         android:id="@+id/which_player"
-        android:layout_width="141dp"
-        android:layout_height="55dp"
+        android:layout_width="314dp"
+        android:layout_height="57dp"
         android:text="TextView"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="51dp"
-        tools:layout_editor_absoluteY="11dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
